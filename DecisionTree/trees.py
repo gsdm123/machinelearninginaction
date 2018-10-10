@@ -1,3 +1,4 @@
+### coding:utf-8
 '''
 Created on Oct 12, 2010
 Decision Tree Source Code for Machine Learning in Action Ch. 3
@@ -102,4 +103,42 @@ def grabTree(filename):
     import pickle
     fr = open(filename)
     return pickle.load(fr)
-    
+
+# 创建数据集
+myDat,labels=createDataSet()
+print(myDat,labels)
+
+# 以第一个特征划分数据
+dat1 = splitDataSet(myDat, 0, 1)
+dat2 = splitDataSet(myDat, 0, 0)
+print(dat1)
+print(dat2)
+
+# 取得当前数据集最佳分类特征
+bestFeature = chooseBestFeatureToSplit(myDat)
+print(bestFeature)
+
+myTree = createTree(myDat, labels)
+print(myTree)
+
+# 绘制决策树
+import treePlotter
+#myTree = treePlotter.retrieveTree(1)
+#treePlotter.createPlot(myTree)
+
+# 决策树存储和载入
+storeTree(myTree, 'classifierStorage.txt')
+myTree = grabTree('classifierStorage.txt')
+print(myTree)
+
+#######################################
+# 使用决策树预测隐形眼镜类型
+#######################################
+fr = open('lenses.txt')
+lenses = [inst.strip().split(',') for inst in fr.readlines()]
+
+lensesLables = lenses[0]
+lensesData = lenses[1:]
+
+lensesTree = createTree(lensesData, lensesLables)
+treePlotter.createPlot(lensesTree)
