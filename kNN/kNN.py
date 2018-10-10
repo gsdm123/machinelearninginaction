@@ -1,3 +1,4 @@
+### coding:utf-8
 '''
 Created on Sep 16, 2010
 kNN: k Nearest Neighbors
@@ -34,6 +35,7 @@ def createDataSet():
     labels = ['A','A','B','B']
     return group, labels
 
+# 文件转矩阵
 def file2matrix(filename):
     love_dictionary={'largeDoses':3, 'smallDoses':2, 'didntLike':1}
     fr = open(filename)
@@ -53,7 +55,7 @@ def file2matrix(filename):
         index += 1
     return returnMat,classLabelVector
 
-    
+# 归一化特征值 平均特征的权重
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
     maxVals = dataSet.max(0)
@@ -63,7 +65,12 @@ def autoNorm(dataSet):
     normDataSet = dataSet - tile(minVals, (m,1))
     normDataSet = normDataSet/tile(ranges, (m,1))   #element wise divide
     return normDataSet, ranges, minVals
-   
+
+# 约会网站
+# 特征1：每年获得飞行常客里程数
+# 特征2：玩视频游戏所耗时间百分比
+# 特征3：每周消费的冰激凌公升数
+# 3非常喜欢 2有点喜欢 1不喜欢
 def datingClassTest():
     hoRatio = 0.50      #hold out 10%
     datingDataMat,datingLabels = file2matrix('datingTestSet2.txt')       #load data setfrom file
@@ -77,7 +84,8 @@ def datingClassTest():
         if (classifierResult != datingLabels[i]): errorCount += 1.0
     print "the total error rate is: %f" % (errorCount/float(numTestVecs))
     print errorCount
-    
+
+# 利用数据集动态识别每次输入的样本，每次输入都对所有数据集算一遍
 def classifyPerson():
     resultList = ['not at all', 'in small doses', 'in large doses']
     percentTats = float(raw_input(\
@@ -124,3 +132,5 @@ def handwritingClassTest():
         if (classifierResult != classNumStr): errorCount += 1.0
     print "\nthe total number of errors is: %d" % errorCount
     print "\nthe total error rate is: %f" % (errorCount/float(mTest))
+
+#datingClassTest()
