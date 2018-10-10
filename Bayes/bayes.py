@@ -1,3 +1,4 @@
+### coding:utf-8
 '''
 Created on Oct 19, 2010
 
@@ -5,6 +6,7 @@ Created on Oct 19, 2010
 '''
 from numpy import *
 
+# 训练数据集
 def loadDataSet():
     postingList=[['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
                  ['maybe', 'not', 'take', 'him', 'to', 'dog', 'park', 'stupid'],
@@ -14,13 +16,15 @@ def loadDataSet():
                  ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
     classVec = [0,1,0,1,0,1]    #1 is abusive, 0 not
     return postingList,classVec
-                 
+
+# 统计数据集中出现的所有词
 def createVocabList(dataSet):
     vocabSet = set([])  #create empty set
     for document in dataSet:
         vocabSet = vocabSet | set(document) #union of the two sets
     return list(vocabSet)
 
+# 将样例词转换为向量，向量长度为所有词，出现该词的位置则置位
 def setOfWords2Vec(vocabList, inputSet):
     returnVec = [0]*len(vocabList)
     for word in inputSet:
@@ -29,6 +33,7 @@ def setOfWords2Vec(vocabList, inputSet):
         else: print "the word: %s is not in my Vocabulary!" % word
     return returnVec
 
+# 训练贝叶斯分类器
 def trainNB0(trainMatrix,trainCategory):
     numTrainDocs = len(trainMatrix)
     numWords = len(trainMatrix[0])
@@ -46,6 +51,7 @@ def trainNB0(trainMatrix,trainCategory):
     p0Vect = log(p0Num/p0Denom)          #change to log()
     return p0Vect,p1Vect,pAbusive
 
+# 使用贝叶斯分类器
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)    #element-wise mult
     p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
@@ -61,6 +67,7 @@ def bagOfWords2VecMN(vocabList, inputSet):
             returnVec[vocabList.index(word)] += 1
     return returnVec
 
+# 验证训练出来的贝叶斯分类器
 def testingNB():
     listOPosts,listClasses = loadDataSet()
     myVocabList = createVocabList(listOPosts)
@@ -79,10 +86,15 @@ def textParse(bigString):    #input is big string, #output is word list
     import re
     listOfTokens = re.split(r'\W*', bigString)
     return [tok.lower() for tok in listOfTokens if len(tok) > 2] 
-    
+
+# 垃圾邮件处理 贝叶斯分类器
+# email/spam : 垃圾邮件文件夹
+# email/ham : 正常邮件文件夹
+
 def spamTest():
     docList=[]; classList = []; fullText =[]
     for i in range(1,26):
+        # docList 一封邮件占一行
         wordList = textParse(open('email/spam/%d.txt' % i).read())
         docList.append(wordList)
         fullText.extend(wordList)
@@ -92,17 +104,24 @@ def spamTest():
         fullText.extend(wordList)
         classList.append(0)
     vocabList = createVocabList(docList)#create vocabulary
+
     trainingSet = range(50); testSet=[]           #create test set
+    #从50封邮件中，随机选出10封邮件作为测试集
+    #因为邮件名字只有数字，所有直接随机50个数作为索引既可以
     for i in range(10):
         randIndex = int(random.uniform(0,len(trainingSet)))
         testSet.append(trainingSet[randIndex])
-        del(trainingSet[randIndex])  
+        del(trainingSet[randIndex])
+
+    # 训练分类器
     trainMat=[]; trainClasses = []
     for docIndex in trainingSet:#train the classifier (get probs) trainNB0
         trainMat.append(bagOfWords2VecMN(vocabList, docList[docIndex]))
         trainClasses.append(classList[docIndex])
     p0V,p1V,pSpam = trainNB0(array(trainMat),array(trainClasses))
     errorCount = 0
+
+    # 测试当前分类器
     for docIndex in testSet:        #classify the remaining items
         wordVector = bagOfWords2VecMN(vocabList, docList[docIndex])
         if classifyNB(array(wordVector),p0V,p1V,pSpam) != classList[docIndex]:
@@ -169,3 +188,10 @@ def getTopWords(ny,sf):
     print "NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**"
     for item in sortedNY:
         print item[0]
+
+# 敏感语言分类器
+#testingNB()
+
+# 垃圾邮件分类器
+#spamTest()
+
