@@ -91,6 +91,7 @@ def colicTest():
             lineArr.append(float(currLine[i]))
         trainingSet.append(lineArr)
         trainingLabels.append(float(currLine[21]))
+
     trainWeights = stocGradAscent1(array(trainingSet), trainingLabels, 1000)
     errorCount = 0; numTestVec = 0.0
     for line in frTest.readlines():
@@ -110,4 +111,5 @@ def multiTest():
     for k in range(numTests):
         errorSum += colicTest()
     print "after %d iterations the average error rate is: %f" % (numTests, errorSum/float(numTests))
-        
+
+multiTest()
