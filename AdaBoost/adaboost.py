@@ -1,3 +1,4 @@
+### coding:utf-8
 '''
 Created on Nov 28, 2010
 Adaboost is short for Adaptive Boosting
@@ -5,6 +6,7 @@ Adaboost is short for Adaptive Boosting
 '''
 from numpy import *
 
+# 简单的数据集 5个样本 2种特征 2种分类
 def loadSimpData():
     datMat = matrix([[ 1. ,  2.1],
         [ 2. ,  1.1],
@@ -14,6 +16,10 @@ def loadSimpData():
     classLabels = [1.0, 1.0, -1.0, -1.0, 1.0]
     return datMat,classLabels
 
+# 功能：从文件中载入数据集
+# 文件格式：特征值1 \t 特征值2 \t ...... 分类
+# 参数：文件名
+# 返回值：[]
 def loadDataSet(fileName):      #general function to parse tab -delimited floats
     numFeat = len(open(fileName).readline().split('\t')) #get number of fields 
     dataMat = []; labelMat = []
@@ -27,6 +33,9 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
         labelMat.append(float(curLine[-1]))
     return dataMat,labelMat
 
+# 功能：判断样本分类
+# 参数：样本、在某个特征值上做分类、分类阈值、分类方法
+# 返回值：[]
 def stumpClassify(dataMatrix,dimen,threshVal,threshIneq):#just classify the data
     retArray = ones((shape(dataMatrix)[0],1))
     if threshIneq == 'lt':
@@ -35,7 +44,9 @@ def stumpClassify(dataMatrix,dimen,threshVal,threshIneq):#just classify the data
         retArray[dataMatrix[:,dimen] > threshVal] = -1.0
     return retArray
     
-
+# 用数据集所有数据训练分类器
+# 参数：数据集、标签、权重向量
+# 返回：分类器、最小错误率、类别估计值
 def buildStump(dataArr,classLabels,D):
     dataMatrix = mat(dataArr); labelMat = mat(classLabels).T
     m,n = shape(dataMatrix)
@@ -61,6 +72,9 @@ def buildStump(dataArr,classLabels,D):
     return bestStump,minError,bestClasEst
 
 
+# 函数：训练分类器
+# 参数：数据集、标签、迭代次数
+# 返回值：训练好的分类器
 def adaBoostTrainDS(dataArr,classLabels,numIt=40):
     weakClassArr = []
     m = shape(dataArr)[0]
@@ -85,6 +99,9 @@ def adaBoostTrainDS(dataArr,classLabels,numIt=40):
         if errorRate == 0.0: break
     return weakClassArr
 
+# 函数：使用训练好的分类器分类数据
+# 参数：待分类数据、分类器
+# 返回值：分类类别
 def adaClassify(datToClass,classifierArr):
     dataMatrix = mat(datToClass)#do stuff similar to last aggClassEst in adaBoostTrainDS
     m = shape(dataMatrix)[0]
@@ -94,7 +111,7 @@ def adaClassify(datToClass,classifierArr):
                                  classifierArr[i]['thresh'],\
                                  classifierArr[i]['ineq'])#call stump classify
         aggClassEst += classifierArr[i]['alpha']*classEst
-        print aggClassEst
+        #print aggClassEst
     return sign(aggClassEst)
 
 def plotROC(predStrengths, classLabels):
@@ -123,3 +140,23 @@ def plotROC(predStrengths, classLabels):
     ax.axis([0,1,0,1])
     plt.show()
     print "the Area Under the Curve is: ",ySum*xStep
+
+
+# 载入数据
+datMat,classLables = loadSimpData()
+# 训练集成分类器
+classifierArr = adaBoostTrainDS(datMat, classLables, 30)
+
+print(adaClassify([0,0], classifierArr))
+print(adaClassify([[0,0],[5,5]], classifierArr))
+
+###########################
+datMat, classLables = loadDataSet('horseColicTraining2.txt')
+classifierArr = adaBoostTrainDS(datMat,classLables,10)
+
+testMat, testLables = loadDataSet('horseColicTest2.txt')
+prediction10 = adaClassify(testMat,classifierArr)
+
+errArr=mat(ones((67,1)))
+print(errArr[prediction10!=mat(testLables).T].sum()/67)
+
