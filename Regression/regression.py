@@ -210,3 +210,43 @@ def crossValidation(xArr,yArr,numVal=10):
     unReg = bestWeights/varX
     print "the best model from Ridge Regression is:\n",unReg
     print "with constant term: ",-1*sum(multiply(meanX,unReg)) + mean(yMat)
+
+xArr,yArr = loadDataSet('ex0.txt')
+ws = standRegres(xArr,yArr)
+
+
+xMat = mat(xArr)
+yMat = mat(yArr)
+#yHat = xMat * ws
+
+import matplotlib.pyplot as plt
+fig = plt.figure()
+
+ax1 = fig.add_subplot(3,1,1)
+ax1.scatter(xMat[:, 1].flatten().A[0], yMat.T[:,0].flatten().A[0])
+
+xMatCopy = xMat.copy()
+xMatCopy.sort(0)
+yHat = xMatCopy * ws
+ax1.plot(xMatCopy[:, 1].flatten().A[0], yHat.flatten().A[0])
+
+
+
+yHat = lwlrTest(xArr, xArr, yArr, 0.003)
+srtInd = xMat[:,1].argsort(0)
+xSort = xMat[srtInd][:, 0, :]
+
+ax2 = fig.add_subplot(3,1,2)
+ax2.scatter(xMat[:, 1].flatten().A[0], yMat.T[:,0].flatten().A[0])
+ax2.plot(xSort[:, 1].flatten().A[0], yHat[srtInd])
+
+
+yHat = lwlrTest(xArr, xArr, yArr, 0.01)
+srtInd = xMat[:,1].argsort(0)
+xSort = xMat[srtInd][:, 0, :]
+
+ax3 = fig.add_subplot(3,1,3)
+ax3.scatter(xMat[:, 1].flatten().A[0], yMat.T[:,0].flatten().A[0])
+ax3.plot(xSort[:, 1].flatten().A[0], yHat[srtInd])
+
+plt.show()
