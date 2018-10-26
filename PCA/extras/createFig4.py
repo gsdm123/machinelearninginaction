@@ -6,9 +6,9 @@ Created on Jun 14, 2011
 from numpy import *
 import matplotlib
 import matplotlib.pyplot as plt
-import pca
+import PCA.pca
 
-dataMat = pca.replaceNanWithMean()
+dataMat = PCA.pca.replaceNanWithMean()
 
 #below is a quick hack copied from pca.pca()
 meanVals = mean(dataMat, axis=0)
