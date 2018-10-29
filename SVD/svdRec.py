@@ -1,3 +1,4 @@
+### coding:utf-8
 '''
 Created on Mar 8, 2011
 
@@ -51,7 +52,7 @@ def standEst(dataMat, user, simMeas, item):
         if len(overLap) == 0: similarity = 0
         else: similarity = simMeas(dataMat[overLap,item], \
                                    dataMat[overLap,j])
-        print 'the %d and %d similarity is: %f' % (item, j, similarity)
+        #print 'the %d and %d similarity is: %f' % (item, j, similarity)
         simTotal += similarity
         ratSimTotal += similarity * userRating
     if simTotal == 0: return 0
@@ -63,17 +64,20 @@ def svdEst(dataMat, user, simMeas, item):
     U,Sigma,VT = la.svd(dataMat)
     Sig4 = mat(eye(4)*Sigma[:4]) #arrange Sig4 into a diagonal matrix
     xformedItems = dataMat.T * U[:,:4] * Sig4.I  #create transformed items
+
     for j in range(n):
         userRating = dataMat[user,j]
         if userRating == 0 or j==item: continue
         similarity = simMeas(xformedItems[item,:].T,\
                              xformedItems[j,:].T)
-        print 'the %d and %d similarity is: %f' % (item, j, similarity)
+        #print 'the %d and %d similarity is: %f' % (item, j, similarity)
         simTotal += similarity
         ratSimTotal += similarity * userRating
     if simTotal == 0: return 0
     else: return ratSimTotal/simTotal
 
+# 找到某用户没有评分的物品，进行评分预测
+# N找到评分前三的物品
 def recommend(dataMat, user, N=3, simMeas=cosSim, estMethod=standEst):
     unratedItems = nonzero(dataMat[user,:].A==0)[1]#find unrated items 
     if len(unratedItems) == 0: return 'you rated everything'
@@ -108,3 +112,23 @@ def imgCompress(numSV=3, thresh=0.8):
     reconMat = U[:,:numSV]*SigRecon*VT[:numSV,:]
     print "****reconstructed matrix using %d singular values******" % numSV
     printMat(reconMat, thresh)
+
+# 推荐系统
+#myDat = mat(loadExData2())
+#print(myDat)
+
+# 列向量的相似度，一般行向量为用户、列向量为物品
+#print(ecludSim(myDat[:, 0], myDat[:, 1]))
+#print(pearsSim(myDat[:, 0], myDat[:, 1]))
+#print(cosSim(myDat[:, 0], myDat[:, 1]))
+
+# 比较利用SVD提高性能，实际使用过程中，因为物品很多，数据集会稀疏很多
+# 利用SVD先简化数据再计算
+#print(recommend(myDat, 1, simMeas=cosSim, estMethod=standEst))
+#print(recommend(myDat, 1, simMeas=cosSim, estMethod=svdEst))
+
+# 得到两个物体都有评级的列向量，进行相关度预算
+#print(nonzero(logical_and(myDat[:, 2].A > 0, myDat[:, 0].A > 0))[0])
+
+# 图像压缩
+imgCompress(2)
