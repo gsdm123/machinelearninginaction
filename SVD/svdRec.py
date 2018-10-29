@@ -87,6 +87,8 @@ def recommend(dataMat, user, N=3, simMeas=cosSim, estMethod=standEst):
         itemScores.append((item, estimatedScore))
     return sorted(itemScores, key=lambda jj: jj[1], reverse=True)[:N]
 
+
+######### 图像压缩
 def printMat(inMat, thresh=0.8):
     for i in range(32):
         for k in range(32):
@@ -106,9 +108,13 @@ def imgCompress(numSV=3, thresh=0.8):
     print "****original matrix******"
     printMat(myMat, thresh)
     U,Sigma,VT = la.svd(myMat)
+
+    # 取指定的奇异值个数
     SigRecon = mat(zeros((numSV, numSV)))
     for k in range(numSV):#construct diagonal matrix from vector
         SigRecon[k,k] = Sigma[k]
+
+    # 用三个矩阵表示图像
     reconMat = U[:,:numSV]*SigRecon*VT[:numSV,:]
     print "****reconstructed matrix using %d singular values******" % numSV
     printMat(reconMat, thresh)
