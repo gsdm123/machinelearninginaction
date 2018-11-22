@@ -42,7 +42,7 @@ def kMeans(dataSet, k, distMeas=distEclud, createCent=randCent):
                     minDist = distJI; minIndex = j
             if clusterAssment[i,0] != minIndex: clusterChanged = True
             clusterAssment[i,:] = minIndex,minDist**2
-        print centroids
+        #print centroids
         for cent in range(k):#recalculate centroids
             ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
             centroids[cent,:] = mean(ptsInClust, axis=0) #assign centroid to mean 
@@ -55,6 +55,7 @@ def biKmeans(dataSet, k, distMeas=distEclud):
     centList =[centroid0] #create a list with one centroid
     for j in range(m):#calc initial Error
         clusterAssment[j,1] = distMeas(mat(centroid0), dataSet[j,:])**2
+
     while (len(centList) < k):
         lowestSSE = inf
         for i in range(len(centList)):
@@ -137,3 +138,13 @@ def clusterClubs(numClust=5):
         ax1.scatter(ptsInCurrCluster[:,0].flatten().A[0], ptsInCurrCluster[:,1].flatten().A[0], marker=markerStyle, s=90)
     ax1.scatter(myCentroids[:,0].flatten().A[0], myCentroids[:,1].flatten().A[0], marker='+', s=300)
     plt.show()
+
+
+datMat = mat(loadDataSet('testSet.txt'))
+myCentroids, clustAssing = kMeans(datMat,4)
+
+print(myCentroids)
+
+datMat2 = mat(loadDataSet('testSet2.txt'))
+myCentroids, clustAssing = biKmeans(datMat2,3)
+print(myCentroids)
